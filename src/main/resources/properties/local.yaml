@@ -1,0 +1,4 @@
+gpr-icg-sapi:
+  host: "localhost"
+  port: "8083"
+  basepath: "/api"

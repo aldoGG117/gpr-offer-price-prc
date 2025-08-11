@@ -1,0 +1,4 @@
+gpr-icg-sapi:
+  host: "gpr-icg-sys-ptcrh2.internal-b83rde.usa-e1.cloudhub.io"
+  port: "443"
+  basepath: "/api"

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<sub-flow name="offerpricePOSTvalidation" doc:id="d26a099c-0ed0-4ebc-a8a5-68ed1949664a" >
+		<flow-ref doc:name="Flow Reference_Idtarifav" doc:id="b8784132-accc-4388-bb3d-88d6696816d8" name="getTarifa"/>
+		<ee:transform doc:name="Transform Message" doc:id="a509a6f9-0367-4467-9252-dd42a948c2cc">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload.IDOC.E1WPBB01.E1WPBB02 map (item) -> {
+  "IDTARIFAV": vars.IDTARIFAV,
+  "CODARTICULO": item.MAT_NR as Number,
+  "TALLA": ".",
+  "COLOR": ".",
+  "PBRUTO2": item.Z1WPBB02.KOND_VAL as Number,
+  "DTO2": item.Z1WPBB02.KOND_PER as Number,
+  "PNETO2": 
+    if ((item.Z1WPBB02.KOND_PER as Number) > 0) 
+      (item.Z1WPBB02.KOND_VAL as Number) * (1 - ((item.Z1WPBB02.KOND_PER as Number) / 100)) 
+    else 
+      item.Z1WPBB02.KOND_VAL as Number,
+  "DESDE2": payload.IDOC.E1WPBB01.E1WPBB05.START_DATE as String {format: "yyyyMMdd"},
+  "HASTA2": payload.IDOC.E1WPBB01.E1WPBB05.END_DATE as String {format: "yyyyMMdd"}
+}]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="IDTARIFAV" ><![CDATA[%dw 2.0
+output application/java
+---
+vars.IDTARIFAV]]></ee:set-variable>
+				<ee:set-variable variableName="CODARTICULO" ><![CDATA[%dw 2.0
+output application/java
+---
+payload.IDOC.E1WPBB01.E1WPBB02[0].MAT_NR]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<http:request method="GET" doc:name="Request" doc:id="0f564e5b-4e3b-4617-81e3-cb916807b663" config-ref="HTTP_Request_ICG" path="/offerPrice" target="response">
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	"IDTARIFAV" : vars.IDTARIFAV,
+	"CODARTICULO" : vars.CODARTICULO
+}]]]></http:query-params>
+		</http:request>
+		<choice doc:name="Choice" doc:id="21db95ae-867a-47f4-9d35-966127e21267" >
+			<when expression="#[vars.response != isEmpty]">
+				<foreach doc:name="For Each" doc:id="af27d746-4703-4817-ae7c-b5fa02409617" collection="#[payload]">
+			<http:request method="POST" doc:name="RequestPOST" doc:id="4d0147e4-f9f7-49c5-b1cb-81316909c39a" config-ref="HTTP_Request_ICG" path="/offerPrice">
+			</http:request>
+		</foreach>
+			</when>
+			<otherwise >
+				<flow-ref doc:name="Flow Reference" doc:id="75a2ee31-a98f-48a7-8967-12bdfe9a5c31" name="offerPricePUTvalidation"/>
+			</otherwise>
+		</choice>
+	</sub-flow>
+	<sub-flow name="offerPricePUTvalidation" doc:id="4704debb-e802-4613-91e1-1d0a4db0b12c" >
+		<foreach doc:name="For Each" doc:id="d749c5b5-fb3e-4230-b159-788ead673fa6" collection="#[payload]">
+			<http:request method="PUT" doc:name="RequestPut" doc:id="06867c02-c38d-4bea-95b4-e6f9464f6077" config-ref="HTTP_Request_ICG" path="/offerPrice">
+			</http:request>
+		</foreach>
+	</sub-flow>
+</mule>
