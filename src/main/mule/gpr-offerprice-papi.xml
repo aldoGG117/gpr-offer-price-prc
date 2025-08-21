@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd  http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
-    <http:listener-config name="promotion-httpListenerConfig">
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd ">
+    <apikit:config name="gpr-offerprice-papi-config" api="resource::df1d60f5-cf70-470f-8bc0-85a92cc0ffa6:gpr-offerprice-sapi:1.0.12:raml:zip:gpr-offerprice-papi.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+    <http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="d80ea5be-6b0b-4d4d-b449-49302c1314da">
         <http:listener-connection host="0.0.0.0" port="8081" />
     </http:listener-config>
-    <apikit:config name="promotion-config" api="resource::df1d60f5-cf70-470f-8bc0-85a92cc0ffa6:promocion:2.0.0:raml:zip:promotion.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
-    <flow name="promotion-main">
-        <http:listener config-ref="promotion-httpListenerConfig" path="/api/v1/*" allowedMethods="GET, POST, PUT">
+    <flow name="gpr-offerprice-papi-main">
+        <http:listener config-ref="HTTP_Listener_config" path="/api/v1/*">
             <http:response statusCode="#[vars.httpStatus default 200]">
                 <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
             </http:response>
@@ -14,7 +14,7 @@
                 <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
             </http:error-response>
         </http:listener>
-        <apikit:router config-ref="promotion-config" />
+        <apikit:router config-ref="gpr-offerprice-papi-config" />
         <error-handler>
             <on-error-propagate type="APIKIT:BAD_REQUEST">
                 <ee:transform doc:name="Transform Message">
@@ -96,8 +96,8 @@ output application/json
             </on-error-propagate>
         </error-handler>
     </flow>
-    <flow name="promotion-console">
-        <http:listener config-ref="promotion-httpListenerConfig" path="/console/*">
+    <flow name="gpr-offerprice-papi-console">
+        <http:listener config-ref="HTTP_Listener_config" path="/console/*">
             <http:response statusCode="#[vars.httpStatus default 200]">
                 <http:headers>#[vars.outboundHeaders default {}]</http:headers>
             </http:response>
@@ -106,7 +106,7 @@ output application/json
                 <http:headers>#[vars.outboundHeaders default {}]</http:headers>
             </http:error-response>
         </http:listener>
-        <apikit:console config-ref="promotion-config" />
+        <apikit:console config-ref="gpr-offerprice-papi-config" />
         <error-handler>
             <on-error-propagate type="APIKIT:NOT_FOUND">
                 <ee:transform doc:name="Transform Message">
@@ -123,23 +123,7 @@ output application/json
             </on-error-propagate>
         </error-handler>
     </flow>
-    <flow name="post:\offerPrice:application\json:promotion-config">
-        <logger level="INFO" doc:name="Logger" doc:id="c2e190a7-0d4f-48b9-829b-2b40675282ce" message="#[payload]" />
-        <flow-ref doc:name="Flow Reference" doc:id="d8e04460-c198-440f-9d78-770e74fdf2d3" name="offerpricePOSTvalidation" />
-        <ee:transform doc:name="Transform Message" doc:id="d1d6cef9-24ed-4283-bfbb-e83f5d23488b">
-            <ee:message>
-                <ee:set-payload><![CDATA[%dw 2.0
-output application/json
----
-{
-  code: "0",
-  message: "Success"
-} as Object {encoding: "UTF-8", mediaType: "application/json"}]]></ee:set-payload>
-            </ee:message>
-        </ee:transform>
-    </flow>
-    <flow name="put:\offerPrice:application\json:promotion-config">
-        <flow-ref doc:name="Flow Reference" doc:id="561bd029-02c2-4cfb-82a6-290ff41f7372" name="offerPricePUTvalidation" />
+    <flow name="put:\offer-price:application\json:gpr-offerprice-papi-config">
         <ee:transform doc:name="Transform Message">
             <ee:message>
                 <ee:set-payload><![CDATA[%dw 2.0
@@ -152,7 +136,7 @@ output application/json
             </ee:message>
         </ee:transform>
     </flow>
-    <flow name="delete:\offerPrice:application\json:promotion-config">
+    <flow name="put:\offerPrice:application\json:gpr-offerprice-papi-config">
         <ee:transform doc:name="Transform Message">
             <ee:message>
                 <ee:set-payload><![CDATA[%dw 2.0
@@ -165,10 +149,128 @@ output application/json
             </ee:message>
         </ee:transform>
     </flow>
-    <flow name="get:\offerPrice\(id):promotion-config">
+    <flow name="get:\offerPrice:gpr-offerprice-papi-config">
+        <ee:transform doc:name="Transform Message">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  IDOC: {
+    "@BEGIN": "1",
+    EDI_DC40: {
+      "@SEGMENT": "1",
+      TABNAM: "EDI_DC40",
+      MANDT: "400",
+      DOCNUM: "0000000000981189",
+      DOCREL: "755",
+      STATUS: "30",
+      DIRECT: "1",
+      OUTMOD: "2",
+      IDOCTYP: "WPDBBY01",
+      CIMTYP: "ZWPDBB01",
+      MESTYP: "WPDBBY",
+      SNDPOR: "SAPPS4",
+      SNDPRT: "LS",
+      SNDPRN: "PRDCLNT400",
+      RCVPOR: "CPI_WPDBBY",
+      RCVPRT: "KU",
+      RCVPRN: "FO05",
+      CREDAT: "20250327",
+      CRETIM: "084846",
+      SERIAL: "20250327084846"
+    },
+    E1WPBB01: {
+      "@SEGMENT": "1",
+      FILIALE: "FO05",
+      BBY_NR: "110000003274",
+      AV_DATE: "20250327",
+      CH_DATE: "00000000",
+      CATEG: "C",
+      POINT: "M",
+      REQ_NR: "000",
+      AENDKENNZ: "MODI",
+      E1WPBB02: [
+        {
+          "@SEGMENT": "1",
+          MAT_NR: "000000000010015243",
+          MAT_EAN: "7502281120918",
+          MAT_NR_LONG: "000000000010015243",
+          Z1WPBB02: {
+            "@SEGMENT": "1",
+            COND_TYPE: "BB01",
+            BBY_TYPE: "P",
+            KOND_PER: "0.000",
+            KOND_VAL: "5.78",
+            KOND_CURCY: "PAB"
+          }
+        }, 
+        {
+          "@SEGMENT": "1",
+          MAT_NR: "000000000010015244",
+          MAT_EAN: "7502002872447",
+          MAT_NR_LONG: "000000000010015244",
+          Z1WPBB02: {
+            "@SEGMENT": "1",
+            COND_TYPE: "BB01",
+            BBY_TYPE: "P",
+            KOND_PER: "0.000",
+            KOND_VAL: "10.31",
+            KOND_CURCY: "PAB"
+          }
+        }, 
+        {
+          "@SEGMENT": "1",
+          MAT_NR: "000000000010015253",
+          MAT_EAN: "7502002872478",
+          MAT_NR_LONG: "000000000010015253",
+          Z1WPBB02: {
+            "@SEGMENT": "1",
+            COND_TYPE: "BB01",
+            BBY_TYPE: "P",
+            KOND_PER: "0.000",
+            KOND_VAL: "6.20",
+            KOND_CURCY: "PAB"
+          }
+        }
+      ],
+      E1WPBB05: {
+        "@SEGMENT": "1",
+        COND_TYPE: "ZPVS",
+        START_DATE: "20250327",
+        END_DATE: "20250331",
+        BBY_TYPE: "P",
+        E1WPBB06: {
+          "@SEGMENT": "1",
+          KOND_SIGN: "-",
+          KOND_PER: "0.000",
+          KOND_VAL: "5.78",
+          KOND_CURCY: "PAB",
+          KOND_CURCY_ISO: "PAB",
+          FG_MIN_QUAN: "0.000",
+          FG_QUAN: "0.000",
+          FG_ADD_QUAN: "0.000",
+          CALC_RULE: "000",
+          REQ_MIN: "0.00",
+          REQ_MAX: "0.00"
+        }
+      },
+      E1WPBB07: {
+        "@SEGMENT": "1",
+        LANGUAGE: "S",
+        LANGUAGE_ISO: "ES",
+        SHORT_TEXT: "FUERTE-VENTA SCANNER GANADOR"
+      }
+    }
+  }
+} as Object {encoding: "UTF-8", mediaType: "application/json"}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\offerPrice\(id):gpr-offerprice-papi-config">
         <ee:transform doc:name="Transform Message">
             <ee:variables>
-                <ee:set-variable variableName="id"><![CDATA[attributes.uriParams.'CODARTICULO']]></ee:set-variable>
+                <ee:set-variable variableName="id">attributes.uriParams.'id'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <ee:transform doc:name="Transform Message">
@@ -178,6 +280,20 @@ output application/json
 ---
 {
   PNETO2: 4.9
+} as Object {encoding: "UTF-8", mediaType: "application/json"}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="post:\offerPrice:application\json:gpr-offerprice-papi-config">
+        <flow-ref doc:name="Flow Reference" doc:id="11ab013a-86a7-4368-8ef7-e7f4591c8cdc" name="offerpricePOSTvalidation" />
+        <ee:transform doc:name="Transform Message">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  code: "0",
+  message: "Success"
 } as Object {encoding: "UTF-8", mediaType: "application/json"}]]></ee:set-payload>
             </ee:message>
         </ee:transform>

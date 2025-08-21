@@ -18,7 +18,11 @@ payload.IDOC.E1WPBB01.FILIALE ]]></ee:set-variable>
 			</ee:variables>
 		</ee:transform>
 		<http:request method="GET" doc:name="Request" doc:id="c3f51dcc-174b-422f-b46f-096b03fee090" config-ref="HTTP_Request_ICG" path="/sales" target="IDTARIFAV" targetValue="#[payload.CODTARIFA]">
-			<http:body ><![CDATA[#['warehouse': vars.warehouse]]]></http:body>
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	"warehouse" : vars.warehouse
+}]]]></http:query-params>
 		</http:request>
 	</sub-flow>
 
