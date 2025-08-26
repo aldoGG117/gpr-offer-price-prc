@@ -75,7 +75,7 @@
 		<dependency>
 			<groupId>df1d60f5-cf70-470f-8bc0-85a92cc0ffa6</groupId>
 			<artifactId>gpr-offerprice-sapi</artifactId>
-			<version>1.0.12</version>
+			<version>1.0.14</version>
 			<classifier>raml</classifier>
 			<type>zip</type>
 		</dependency>
