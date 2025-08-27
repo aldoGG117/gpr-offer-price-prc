@@ -58,7 +58,7 @@ payload.IDOC.E1WPBB01.E1WPBB02[0].MAT_NR]]></ee:set-variable>
 						</foreach>
 					</when>
 					<when expression="#[!isEmpty(vars.response)]" >
-						<flow-ref doc:name="Flow Reference" doc:id="16a1897e-3580-470b-8734-31d6f67a5155" name="offerPricePUTvalidation" />
+						<flow-ref doc:name="Flow Reference" doc:id="16a1897e-3580-470b-8734-31d6f67a5155" name="offerPricePUTvalidationArray" />
 					</when>
 				</choice>
 			</when>
@@ -115,7 +115,82 @@ payload.IDOC.E1WPBB01.E1WPBB02.MAT_NR]]></ee:set-variable>
 			</otherwise>
 		</choice>
 	</sub-flow>
-	<sub-flow name="offerPricePUTvalidation" doc:id="4704debb-e802-4613-91e1-1d0a4db0b12c" >
+	<sub-flow name="offerPricePUTvalidation" doc:id="c389f2c9-74a6-4f06-b6bb-c96e3e77a52c" >
+		<flow-ref doc:name="Flow Reference_Idtarifav" doc:id="0bede141-27bc-4ad3-9023-b9275584f144" name="getTarifa" />
+		<choice doc:name="Choice" doc:id="4ad4f75d-0461-416e-962a-9a26738e3eb9" >
+			<when expression="#[payload.IDOC.E1WPBB01.E1WPBB02 is Array]" >
+				<ee:transform doc:name="Transform Message" doc:id="0e682b4e-b4bb-456d-8f51-c4a68b5f3b19" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload.IDOC.E1WPBB01.E1WPBB02 map (item) -> {
+  "IDTARIFAV": vars.IDTARIFAV,
+  "CODARTICULO": item.MAT_NR as Number,
+  "TALLA": ".",
+  "COLOR": ".",
+  "PBRUTO2": item.Z1WPBB02.KOND_VAL as Number,
+  "DTO2": item.Z1WPBB02.KOND_PER as Number,
+  "PNETO2": 
+    if ((item.Z1WPBB02.KOND_PER as Number) > 0) 
+      (item.Z1WPBB02.KOND_VAL as Number) * (1 - ((item.Z1WPBB02.KOND_PER as Number) / 100)) 
+    else 
+      item.Z1WPBB02.KOND_VAL as Number,
+  "DESDE2": payload.IDOC.E1WPBB01.E1WPBB05.START_DATE as String {format: "yyyyMMdd"},
+  "HASTA2": payload.IDOC.E1WPBB01.E1WPBB05.END_DATE as String {format: "yyyyMMdd"}
+}]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="IDTARIFAV" ><![CDATA[%dw 2.0
+output application/java
+---
+vars.IDTARIFAV]]></ee:set-variable>
+						<ee:set-variable variableName="CODARTICULO" ><![CDATA[%dw 2.0
+output application/java
+---
+payload.IDOC.E1WPBB01.E1WPBB02[0].MAT_NR]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+				<flow-ref doc:name="Flow Reference" doc:id="80653b10-6e50-434a-ac94-d701997e01ed" name="offerPricePUTvalidationArray" />
+			</when>
+			<otherwise >
+				<ee:transform doc:name="Transform Message" doc:id="feab403c-6355-450c-a216-02eb2e0373ec" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+  "IDTARIFAV": vars.IDTARIFAV,
+  "CODARTICULO": payload.IDOC.E1WPBB01.E1WPBB02.MAT_NR as Number,
+  "TALLA": ".",
+  "COLOR": ".",
+  "PBRUTO2": payload.IDOC.E1WPBB01.E1WPBB02.Z1WPBB02.KOND_VAL as Number,
+  "DTO2": payload.IDOC.E1WPBB01.E1WPBB02.Z1WPBB02.KOND_PER as Number,
+  "PNETO2": 
+    if ((payload.IDOC.E1WPBB01.E1WPBB02.Z1WPBB02.KOND_PER as Number) > 0) 
+      (payload.IDOC.E1WPBB01.E1WPBB02.Z1WPBB02.KOND_VAL as Number) * (1 - ((payload.IDOC.E1WPBB01.E1WPBB02.Z1WPBB02.KOND_PER as Number) / 100)) 
+    else 
+      payload.IDOC.E1WPBB01.E1WPBB02.Z1WPBB02.KOND_VAL as Number,
+  "DESDE2": payload.IDOC.E1WPBB01.E1WPBB05.START_DATE as String {format: "yyyyMMdd"},
+  "HASTA2": payload.IDOC.E1WPBB01.E1WPBB05.END_DATE as String {format: "yyyyMMdd"}
+}]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="IDTARIFAV" ><![CDATA[%dw 2.0
+output application/json
+---
+vars.IDTARIFAV]]></ee:set-variable>
+						<ee:set-variable variableName="CODARTICULO" ><![CDATA[%dw 2.0
+output application/json
+---
+payload.IDOC.E1WPBB01.E1WPBB02.MAT_NR]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+				<flow-ref doc:name="Flow Reference" doc:id="249b285a-a529-4e56-8812-7cb1260768b4" name="offerpricePUTvalidationObject" />
+			</otherwise>
+		</choice>
+	</sub-flow>
+	<sub-flow name="offerPricePUTvalidationArray" doc:id="4704debb-e802-4613-91e1-1d0a4db0b12c" >
 		<foreach doc:name="For Each" doc:id="d749c5b5-fb3e-4230-b159-788ead673fa6" collection="#[payload]">
 			<http:request method="PUT" doc:name="RequestPut" doc:id="06867c02-c38d-4bea-95b4-e6f9464f6077" config-ref="HTTP_Request_ICG" path="/offerPrice">
 			</http:request>

@@ -124,7 +124,8 @@ output application/json
         </error-handler>
     </flow>
     <flow name="put:\offerPrice:application\json:gpr-offerprice-papi-config">
-        <ee:transform doc:name="Transform Message">
+        <flow-ref doc:name="Flow Reference" doc:id="5f23a15e-f86b-4f8d-8176-6cf29a8678b0" name="offerPricePUTvalidation" />
+		<ee:transform doc:name="Transform Message">
             <ee:message>
                 <ee:set-payload><![CDATA[%dw 2.0
 output application/json
@@ -272,7 +273,7 @@ output application/json
         </ee:transform>
     </flow>
     <flow name="post:\offerPrice:application\json:gpr-offerprice-papi-config">
-        <flow-ref doc:name="Flow Reference" doc:id="11ab013a-86a7-4368-8ef7-e7f4591c8cdc" name="offerpricePOSTvalidation" />
+        <flow-ref doc:name="Flow Reference" doc:id="11ab013a-86a7-4368-8ef7-e7f4591c8cdc" name="offerPricePUTvalidation" />
         <ee:transform doc:name="Transform Message">
             <ee:message>
                 <ee:set-payload><![CDATA[%dw 2.0
