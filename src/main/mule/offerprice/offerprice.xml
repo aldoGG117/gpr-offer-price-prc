@@ -129,13 +129,19 @@ payload.IDOC.E1WPBB01.E1WPBB02 map (item) -> {
   "CODARTICULO": item.MAT_NR as Number,
   "TALLA": ".",
   "COLOR": ".",
+  "DTOTEXTO2": payload.IDOC.E1WPBB01.BBY_NR,
+  "PBRUTO": item.Z1WPBB02.KOND_VAL as Number,
   "PBRUTO2": item.Z1WPBB02.KOND_VAL as Number,
   "DTO2": item.Z1WPBB02.KOND_PER as Number,
-  "PNETO2": 
-    if ((item.Z1WPBB02.KOND_PER as Number) > 0) 
-      (item.Z1WPBB02.KOND_VAL as Number) * (1 - ((item.Z1WPBB02.KOND_PER as Number) / 100)) 
-    else 
-      item.Z1WPBB02.KOND_VAL as Number,
+  "PNETO2":
+    if ((item.Z1WPBB02.KOND_PER as Number) > 0)
+      ((item.Z1WPBB02.KOND_VAL as Number) -
+       ((item.Z1WPBB02.KOND_VAL as Number) *
+        (item.Z1WPBB02.KOND_PER as Number) / 100))
+       as String {format: "#0.000"}
+    else
+      (item.Z1WPBB02.KOND_VAL as Number)
+       as String {format: "#0.000"},
   "DESDE2": payload.IDOC.E1WPBB01.E1WPBB05.START_DATE as String {format: "yyyyMMdd"},
   "HASTA2": payload.IDOC.E1WPBB01.E1WPBB05.END_DATE as String {format: "yyyyMMdd"}
 }]]></ee:set-payload>
@@ -164,13 +170,19 @@ output application/json
   "CODARTICULO": payload.IDOC.E1WPBB01.E1WPBB02.MAT_NR as Number,
   "TALLA": ".",
   "COLOR": ".",
+  "DTOTEXTO2": payload.IDOC.E1WPBB01.BBY_NR,
+  "PBRUTO": payload.IDOC.E1WPBB01.E1WPBB02.Z1WPBB02.KOND_VAL as Number,
   "PBRUTO2": payload.IDOC.E1WPBB01.E1WPBB02.Z1WPBB02.KOND_VAL as Number,
   "DTO2": payload.IDOC.E1WPBB01.E1WPBB02.Z1WPBB02.KOND_PER as Number,
-  "PNETO2": 
-    if ((payload.IDOC.E1WPBB01.E1WPBB02.Z1WPBB02.KOND_PER as Number) > 0) 
-      (payload.IDOC.E1WPBB01.E1WPBB02.Z1WPBB02.KOND_VAL as Number) * (1 - ((payload.IDOC.E1WPBB01.E1WPBB02.Z1WPBB02.KOND_PER as Number) / 100)) 
-    else 
-      payload.IDOC.E1WPBB01.E1WPBB02.Z1WPBB02.KOND_VAL as Number,
+  "PNETO2":
+    if ((payload.IDOC.E1WPBB01.E1WPBB02.Z1WPBB02.KOND_PER as Number) > 0)
+      ((payload.IDOC.E1WPBB01.E1WPBB02.Z1WPBB02.KOND_VAL as Number) -
+       ((payload.IDOC.E1WPBB01.E1WPBB02.Z1WPBB02.KOND_VAL as Number) *
+        (payload.IDOC.E1WPBB01.E1WPBB02.Z1WPBB02.KOND_PER as Number) / 100))
+       as String {format: "#0.000"}
+    else
+      (payload.IDOC.E1WPBB01.E1WPBB02.Z1WPBB02.KOND_VAL as Number)
+       as String {format: "#0.000"},
   "DESDE2": payload.IDOC.E1WPBB01.E1WPBB05.START_DATE as String {format: "yyyyMMdd"},
   "HASTA2": payload.IDOC.E1WPBB01.E1WPBB05.END_DATE as String {format: "yyyyMMdd"}
 }]]></ee:set-payload>
