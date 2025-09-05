@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<sub-flow name="precio-bruto-GET" doc:id="ccb0574e-73bf-4d19-996a-ff7f3b271e02" >
+		<ee:transform doc:name="Transform Message" doc:id="0b9c0a38-f307-4f48-af35-ed73e1b0beb1" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="IDTARIFAV" ><![CDATA[%dw 2.0
+output application/java
+---
+vars.IDTARIFAV]]></ee:set-variable>
+				<ee:set-variable variableName="CODARTICULO" ><![CDATA[%dw 2.0
+output application/json
+fun normalizeToArray(data) =
+    if (data is Array) data
+    else if (data != null) [data]
+    else []
+---
+normalizeToArray(payload.IDOC.E1WPBB01.E1WPBB02.MAT_NR)]]></ee:set-variable>
+				<ee:set-variable variableName="PBRUTO" ><![CDATA[%dw 2.0
+output application/json
+---
+[
+
+]]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<foreach doc:name="For Each" doc:id="5ae851b6-3e5f-4f8c-8af8-03be477a3aa9" collection="#[vars.CODARTICULO]">
+			<http:request method="GET" doc:name="Request" doc:id="66bc278f-54b8-4ca7-9d13-006ca97cc2df" config-ref="HTTP_Request_ICG" path="/offerPrice" responseTimeout="5000000">
+				<http:query-params ><![CDATA[#[output application/json
+---
+{
+	"IDTARIFAV" : vars.IDTARIFAV,
+	"CODARTICULO" : payload
+}]]]></http:query-params>
+			</http:request>
+			<ee:transform doc:name="Transform Message" doc:id="0fd9b538-ee5f-4760-ac11-66eecf34a678" >
+				<ee:message >
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="PBRUTO" ><![CDATA[%dw 2.0
+output application/json
+---
+vars.PBRUTO ++ payload ]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+		</foreach>
+		<ee:transform doc:name="Transform Message" doc:id="f326208b-1733-4def-bee8-3f2b46974740" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+vars.PBRUTO]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</sub-flow>
+</mule>
