@@ -20,12 +20,12 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
                          doc:id="92f52e17-7470-4ec5-a08a-7cfc96403324"
                          basePath="${gpr-icg-sapi.basepath}">
         <http:request-connection host="${gpr-icg-sapi.host}"
-                                 port="${gpr-icg-sapi.port}" connectionIdleTimeout="50000" protocol="HTTPS"/>
+                                 port="${gpr-icg-sapi.port}" connectionIdleTimeout="50000"/>
     </http:request-config>
 
     <configuration-properties doc:name="Configuration properties"
                               doc:id="1ebea147-08b0-4bc2-9ce2-84bb672d02f9"
-                              file="properties/dev.yaml" />
+                              file="properties/local.yaml" />
 	<configuration-properties doc:name="Configuration properties" doc:id="cf55deff-323b-4479-8a55-7b48e4cc3b7d" file="properties/common.yaml" />
 	<db:config name="Database_Config" doc:name="Database Config" doc:id="cd0f9cc5-2492-4e29-9554-3bcda62b6975" >
 		<db:mssql-connection host="192.168.254.59" instanceName="GRSQLQA" port="1433" user="USR_VASSCOMPANY" password="VassC1234*" databaseName="BD1" />

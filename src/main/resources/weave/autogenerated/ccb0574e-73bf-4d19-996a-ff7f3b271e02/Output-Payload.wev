@@ -1,0 +1,76 @@
+%dw 2.0
+
+type auto_ccb0574e_73bf_4d19_996a_ff7f3b271e02_Output_Payload = {
+  IDOC: {
+    "@BEGIN": String, 
+    EDI_DC40: {
+      SERIAL: String, 
+      RCVPRN: String, 
+      DOCREL: String, 
+      SNDPRT: String, 
+      SNDPOR: String, 
+      "@SEGMENT"?: String, 
+      MESTYP: String, 
+      RCVPRT: String, 
+      RCVPOR: String, 
+      DOCNUM: String, 
+      SNDPRN: String, 
+      TABNAM: String, 
+      OUTMOD: String, 
+      MANDT: String, 
+      STATUS: String, 
+      IDOCTYP: String, 
+      CIMTYP: String, 
+      CREDAT: String, 
+      CRETIM: String, 
+      DIRECT: String, 
+      _?: Any
+    }, 
+    E1WPBB01: {
+      BBY_NR: String, 
+      CH_DATE: String, 
+      E1WPBB07: {
+        LANGUAGE?: String, 
+        SHORT_TEXT?: String, 
+        "@SEGMENT"?: String, 
+        LANGUAGE_ISO?: String, 
+        _?: Any
+      }, 
+      AENDKENNZ: String, 
+      E1WPBB05: {
+        COND_TYPE: String, 
+        E1WPBB06: {
+          KOND_PER: String, 
+          FG_QUAN: String, 
+          CALC_RULE: String, 
+          FG_MIN_QUAN: String, 
+          KOND_VAL: String, 
+          FG_ADD_QUAN: String, 
+          "@SEGMENT": String, 
+          KOND_SIGN: String, 
+          KOND_CURCY_ISO: String, 
+          KOND_CURCY: String, 
+          REQ_MAX: String, 
+          REQ_MIN: String, 
+          _?: Any
+        }, 
+        "@SEGMENT": String, 
+        END_DATE: String, 
+        START_DATE: String, 
+        BBY_TYPE: String, 
+        _?: Any
+      }, 
+      CATEG: String, 
+      "@SEGMENT": String, 
+      AV_DATE: String, 
+      E1WPBB02: Array<{        MAT_NR: String,         MAT_EAN: String,         Z1WPBB02: {          COND_TYPE: String,           KOND_PER: String,           KOND_VAL: String,           "@SEGMENT": String,           BBY_TYPE: String,           KOND_CURCY: String,           _?: Any        },         "@SEGMENT": String,         MAT_NR_LONG: String,         _?: Any      }>, 
+      REQ_NR: String, 
+      POINT: String, 
+      FILIALE: String, 
+      _?: Any
+    }, 
+    _?: Any
+  }, 
+  _?: Any
+}
+

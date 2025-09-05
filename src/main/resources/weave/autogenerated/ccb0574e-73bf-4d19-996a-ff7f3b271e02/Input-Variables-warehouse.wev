@@ -1,0 +1,4 @@
+%dw 2.0
+
+type auto_ccb0574e_73bf_4d19_996a_ff7f3b271e02_Input_Variables_warehouse = Any
+
