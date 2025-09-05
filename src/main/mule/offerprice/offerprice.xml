@@ -121,82 +121,55 @@ payload.IDOC.E1WPBB01.E1WPBB02.MAT_NR]]></ee:set-variable>
 		<flow-ref doc:name="Obtener Precio Bruto" doc:id="92118f0d-ce57-433a-b9a7-d3280d0f5fcf" name="precio-bruto-GET" target="PBRUTO"/>
 		<choice doc:name="Choice" doc:id="4ad4f75d-0461-416e-962a-9a26738e3eb9" >
 			<when expression="#[payload.IDOC.E1WPBB01.E1WPBB02 is Array]" >
-				<ee:transform doc:name="Transform Message" doc:id="f0505f2a-ae13-488f-8cb1-a7522b453fa0">
-					<ee:message>
-					</ee:message>
-					<ee:variables >
-						<ee:set-variable variableName="originalPayload" ><![CDATA[%dw 2.0
+<!-- Guardamos el payload original -->
+<ee:transform doc:name="Guardar payload original">
+    <ee:variables>
+        <ee:set-variable variableName="originalPayload"><![CDATA[%dw 2.0
 output application/json
 ---
-payload]]></ee:set-variable>
-					</ee:variables>
-				</ee:transform>
-				<foreach doc:name="For Each" doc:id="2d419906-7690-4a53-a1dc-6ad0ef417b62" collection="#[vars.PBRUTO]">
-					<ee:transform doc:name="Transform Message" doc:id="0e682b4e-b4bb-456d-8f51-c4a68b5f3b19">
-					<ee:message>
-						<ee:set-payload><![CDATA[%dw 2.0
+payload
+]]></ee:set-variable>
+    </ee:variables>
+</ee:transform>
+
+<!-- Creamos la lista combinada usando zip en DataWeave -->
+
+<!-- Iteramos sobre la lista combinada -->
+
+<foreach doc:name="For Each" collection="#[vars.originalPayload.IDOC.E1WPBB01.E1WPBB02]" counterVariableName="index">
+    <ee:transform doc:name="Transformar artículo">
+        <ee:message>
+            <ee:set-payload><![CDATA[%dw 2.0
 output application/json
+var prevPBRUTO = 
+    if (vars.PBRUTO != null and vars.PBRUTO is Array and vars.index > 0 and vars.PBRUTO[(vars.index - 1) as Number]? != null)
+        vars.PBRUTO[(vars.index - 1) as Number].PBRUTO as Number
+    else 0
 ---
-vars.originalPayload.IDOC.E1WPBB01.E1WPBB02 map (item) -> {
+{
   "IDTARIFAV": vars.IDTARIFAV,
-  "CODARTICULO": item.MAT_NR as Number,
+  "CODARTICULO": payload.MAT_NR as Number,
   "TALLA": ".",
   "COLOR": ".",
   "DTOTEXTO2": vars.originalPayload.IDOC.E1WPBB01.BBY_NR,
-  "PBRUTO": payload.PBRUTO as Number,
-  "PBRUTO2": item.Z1WPBB02.KOND_VAL as Number,
-  "DTO2": item.Z1WPBB02.KOND_PER as Number,
+  "PBRUTO": prevPBRUTO,
+  "PBRUTO2": payload.Z1WPBB02.KOND_VAL as Number,
+  "DTO2": payload.Z1WPBB02.KOND_PER as Number,
   "PNETO2":
-    if ((item.Z1WPBB02.KOND_PER as Number) > 0)
-      ((payload.PBRUTO as Number) -
-       ((payload.PBRUTO as Number) *
-        (item.Z1WPBB02.KOND_PER as Number) / 100))
-       as String {format: "#0.000"}
+    if ((payload.Z1WPBB02.KOND_PER as Number) > 0)
+      ((prevPBRUTO - (prevPBRUTO * (payload.Z1WPBB02.KOND_PER as Number) / 100)) as String {format: "#0.000"})
     else
-      (item.Z1WPBB02.KOND_VAL as Number)
-       as String {format: "#0.000"},
+      (payload.Z1WPBB02.KOND_VAL as Number) as String {format: "#0.000"},
   "DESDE2": vars.originalPayload.IDOC.E1WPBB01.E1WPBB05.START_DATE as String {format: "yyyyMMdd"},
   "HASTA2": vars.originalPayload.IDOC.E1WPBB01.E1WPBB05.END_DATE as String {format: "yyyyMMdd"}
 }
- ]]></ee:set-payload>
-					</ee:message>
-					<ee:variables>
-						<ee:set-variable variableName="IDTARIFAV"><![CDATA[%dw 2.0
-output application/java
----
-vars.IDTARIFAV]]></ee:set-variable>
-						<ee:set-variable variableName="CODARTICULO"><![CDATA[%dw 2.0
-output application/java
----
-payload.IDOC.E1WPBB01.E1WPBB02[0].MAT_NR]]></ee:set-variable>
-						<ee:set-variable variableName="PBRUTO"><![CDATA[%dw 2.0
-output application/json
----
-payload.IDOC.E1WPBB01.E1WPBB02 map (item) -> {
-  "IDTARIFAV": vars.IDTARIFAV,
-  "CODARTICULO": item.MAT_NR as Number,
-  "TALLA": ".",
-  "COLOR": ".",
-  "DTOTEXTO2": payload.IDOC.E1WPBB01.BBY_NR,
-  "PBRUTO": item.Z1WPBB02.KOND_VAL as Number,
-  "PBRUTO2": item.Z1WPBB02.KOND_VAL as Number,
-  "DTO2": item.Z1WPBB02.KOND_PER as Number,
-  "PNETO2":
-    if ((item.Z1WPBB02.KOND_PER as Number) > 0)
-      ((item.Z1WPBB02.KOND_VAL as Number) -
-       ((item.Z1WPBB02.KOND_VAL as Number) *
-        (item.Z1WPBB02.KOND_PER as Number) / 100))
-       as String {format: "#0.000"}
-    else
-      (item.Z1WPBB02.KOND_VAL as Number)
-       as String {format: "#0.000"},
-  "DESDE2": payload.IDOC.E1WPBB01.E1WPBB05.START_DATE as String {format: "yyyyMMdd"},
-  "HASTA2": payload.IDOC.E1WPBB01.E1WPBB05.END_DATE as String {format: "yyyyMMdd"}
-}]]></ee:set-variable>
-					</ee:variables>
-				</ee:transform>
-					<flow-ref doc:name="Flow Reference" doc:id="80653b10-6e50-434a-ac94-d701997e01ed" name="offerPricePUTvalidationArray" />
-				</foreach>
+]]></ee:set-payload>
+        </ee:message>
+    </ee:transform>
+
+    <!-- Aquí tu subflow o lo que quieras hacer con cada objeto -->
+					<http:request method="PUT" doc:name="RequestPut" doc:id="48f508d3-c325-4c7e-a729-86afcb7647bc" config-ref="HTTP_Request_ICG" path="/offerPrice" />
+</foreach>
 			</when>
 			<otherwise >
 				<ee:transform doc:name="Transform Message" doc:id="feab403c-6355-450c-a216-02eb2e0373ec" >
