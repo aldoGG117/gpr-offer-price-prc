@@ -153,7 +153,7 @@ var prevPBRUTO =
   "COLOR": ".",
   "DTOTEXTO2": vars.originalPayload.IDOC.E1WPBB01.BBY_NR,
   "PBRUTO": prevPBRUTO,
-  "PBRUTO2": payload.Z1WPBB02.KOND_VAL as Number,
+  "PBRUTO2": prevPBRUTO,
   "DTO2": payload.Z1WPBB02.KOND_PER as Number,
   "PNETO2":
     if ((payload.Z1WPBB02.KOND_PER as Number) > 0)
@@ -184,7 +184,7 @@ output application/json
   "COLOR": ".",
   "DTOTEXTO2": payload.IDOC.E1WPBB01.BBY_NR,
   "PBRUTO": vars.PBRUTO[0].PBRUTO as Number,
-  "PBRUTO2": payload.IDOC.E1WPBB01.E1WPBB02.Z1WPBB02.KOND_VAL as Number,
+  "PBRUTO2": vars.PBRUTO[0].PBRUTO as Number,
   "DTO2": payload.IDOC.E1WPBB01.E1WPBB02.Z1WPBB02.KOND_PER as Number,
   "PNETO2":
     if ((payload.IDOC.E1WPBB01.E1WPBB02.Z1WPBB02.KOND_PER as Number) > 0)
